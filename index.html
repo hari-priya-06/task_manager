@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task Manager</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(120deg, #f0f4ff 0%, #e3e9f7 100%);
+            min-height: 100vh;
+        }
+        h1 {
+            color: #2d3a4b;
+            text-align: center;
+            margin-top: 40px;
+            letter-spacing: 1px;
+        }
+        .task-form, .task-list {
+            background: #fff;
+            padding: 28px 32px 24px 32px;
+            border-radius: 14px;
+            margin: 32px auto;
+            box-shadow: 0 6px 32px 0 rgba(60,72,88,0.10), 0 1.5px 4px 0 rgba(60,72,88,0.08);
+            max-width: 520px;
+        }
+        .task-form h2, .task-list h2 {
+            color: #3a4668;
+            margin-bottom: 18px;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        .task-form label {
+            display: block;
+            margin-top: 14px;
+            color: #4b5675;
+            font-size: 1em;
+            font-weight: 500;
+        }
+        .task-form input, .task-form select, .task-form textarea {
+            width: 100%;
+            padding: 9px 12px;
+            margin-top: 6px;
+            border-radius: 6px;
+            border: 1.5px solid #d1d9e6;
+            background: #f7f9fc;
+            font-size: 1em;
+            transition: border 0.2s;
+            box-sizing: border-box;
+        }
+        .task-form input:focus, .task-form select:focus, .task-form textarea:focus {
+            border: 1.5px solid #6c63ff;
+            outline: none;
+            background: #f0f4ff;
+        }
+        .subtasks {
+            margin-top: 16px;
+        }
+        .subtasks label {
+            font-weight: 500;
+            color: #4b5675;
+        }
+        .subtasks input[type="text"] {
+            width: 80%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .subtasks button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: #6c63ff;
+            color: #fff;
+            font-size: 1.3em;
+            cursor: pointer;
+            transition: background 0.2s;
+            vertical-align: middle;
+        }
+        .subtasks button:hover {
+            background: #5548c8;
+        }
+        #subtaskList div {
+            display: inline-block;
+            background: #e3e9f7;
+            color: #3a4668;
+            border-radius: 6px;
+            padding: 4px 12px 4px 10px;
+            margin: 4px 6px 4px 0;
+            font-size: 0.98em;
+            position: relative;
+        }
+        #subtaskList button {
+            background: transparent;
+            color: #b71c1c;
+            border: none;
+            font-size: 1em;
+            margin-left: 6px;
+            cursor: pointer;
+            padding: 0;
+            position: absolute;
+            right: 4px;
+            top: 2px;
+        }
+        .task-form button[type="submit"] {
+            background: linear-gradient(90deg, #6c63ff 60%, #5e60ce 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 0;
+            width: 100%;
+            font-size: 1.08em;
+            font-weight: 600;
+            margin-top: 22px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #e3e9f7;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .task-form button[type="submit"]:hover {
+            background: linear-gradient(90deg, #5548c8 60%, #3a4668 100%);
+            box-shadow: 0 4px 16px #d1d9e6;
+        }
+        .task-list {
+            margin-top: 0;
+        }
+        .task {
+            border-bottom: 1.5px solid #f0f4ff;
+            padding: 18px 0 10px 0;
+            transition: background 0.2s;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: #f7f9fc;
+            box-shadow: 0 1px 4px #e3e9f7;
+        }
+        .task:last-child {
+            border-bottom: none;
+        }
+        .task strong {
+            font-size: 1.13em;
+            color: #2d3a4b;
+        }
+        .task span[class^="priority-"] {
+            font-weight: 600;
+            margin-left: 10px;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-size: 0.98em;
+        }
+        .priority-high { background: #ffeaea; color: #d32f2f; }
+        .priority-medium { background: #fff8e1; color: #fb8c00; }
+        .priority-low { background: #e8f5e9; color: #388e3c; }
+        .task span[class^="status-"] {
+            font-weight: 600;
+            margin-left: 10px;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-size: 0.98em;
+        }
+        .status-todo { background: #fff3e0; color: #ff9800; }
+        .status-inprogress { background: #e3f2fd; color: #1976d2; }
+        .status-done { background: #e8f5e9; color: #43a047; }
+        .labels {
+            margin-top: 7px;
+        }
+        .labels span {
+            background: #6c63ff;
+            color: #fff;
+            border-radius: 4px;
+            padding: 2px 10px;
+            margin-right: 6px;
+            font-size: 0.93em;
+            display: inline-block;
+            margin-bottom: 2px;
+        }
+        .task b {
+            color: #3a4668;
+        }
+        .task ul {
+            margin: 6px 0 0 20px;
+            padding: 0;
+        }
+        .task ul li {
+            color: #4b5675;
+            font-size: 0.98em;
+            margin-bottom: 2px;
+        }
+        @media (max-width: 600px) {
+            .task-form, .task-list {
+                max-width: 98vw;
+                padding: 16px 6vw 16px 6vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Task Manager</h1>
+    <div class="task-form">
+        <h2>Add New Task</h2>
+        <form id="addTaskForm" autocomplete="off">
+            <label>Task Name
+                <input type="text" id="taskName" required>
+            </label>
+            <label>Priority
+                <select id="taskPriority">
+                    <option value="High">High</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+            </label>
+            <label>Deadline
+                <input type="date" id="taskDeadline">
+            </label>
+            <label>Reminder
+                <input type="datetime-local" id="taskReminder">
+                <select id="reminderRepeat" style="margin-top:6px;">
+                    <option value="">No Repeat</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="hourly">Every X Hours</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <input type="number" id="reminderCustomHours" min="1" placeholder="Hours" style="display:none;margin-top:6px;width:80px;">
+                <input type="text" id="reminderCustomText" placeholder="Custom (e.g. every 3 days)" style="display:none;margin-top:6px;">
+            </label>
+            <label>Status
+                <select id="taskStatus">
+                    <option value="To Do">To Do</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Done">Done</option>
+                </select>
+            </label>
+            <label>Categories/Labels (comma separated)
+                <input type="text" id="taskLabels" placeholder="e.g. Work, Urgent">
+            </label>
+            <div class="subtasks">
+                <label>Subtasks</label>
+                <div id="subtaskList"></div>
+                <input type="text" id="subtaskInput" placeholder="Add subtask">
+                <button type="button" onclick="addSubtask()">+</button>
+            </div>
+            <button type="submit" style="margin-top:15px;">Add Task</button>
+        </form>
+    </div>
+    <div class="task-list">
+        <h2>Tasks</h2>
+        <div id="tasksContainer"></div>
+    </div>
+    <script>
+        // --- Task Data ---
+        let tasks = [];
+        let subtasks = [];
+        let editIndex = null; // Track which task is being edited
+
+        // --- Reminder Repeat Handling ---
+        const reminderRepeat = document.getElementById('reminderRepeat');
+        const reminderCustomHours = document.getElementById('reminderCustomHours');
+        const reminderCustomText = document.getElementById('reminderCustomText');
+        reminderRepeat.addEventListener('change', function() {
+            reminderCustomHours.style.display = this.value === 'hourly' ? '' : 'none';
+            reminderCustomText.style.display = this.value === 'custom' ? '' : 'none';
+        });
+
+        // --- Subtask Handling ---
+        function addSubtask() {
+            const input = document.getElementById('subtaskInput');
+            const value = input.value.trim();
+            if (value) {
+                subtasks.push({ name: value, done: false });
+                input.value = '';
+                renderSubtasks();
+            }
+        }
+        function removeSubtask(idx) {
+            subtasks.splice(idx, 1);
+            renderSubtasks();
+        }
+        function renderSubtasks() {
+            const list = document.getElementById('subtaskList');
+            list.innerHTML = '';
+            subtasks.forEach((st, idx) => {
+                const div = document.createElement('div');
+                div.textContent = st.name;
+                div.style.display = 'inline-block';
+                div.style.marginRight = '8px';
+                const btn = document.createElement('button');
+                btn.textContent = 'x';
+                btn.onclick = () => removeSubtask(idx);
+                btn.style.marginLeft = '4px';
+                btn.style.background = '#eee';
+                btn.style.border = 'none';
+                btn.style.cursor = 'pointer';
+                div.appendChild(btn);
+                list.appendChild(div);
+            });
+        }
+
+        // --- Task Form Submission ---
+        document.getElementById('addTaskForm').onsubmit = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('taskName').value.trim();
+            const priority = document.getElementById('taskPriority').value;
+            const deadline = document.getElementById('taskDeadline').value;
+            const reminder = document.getElementById('taskReminder').value;
+            const repeat = document.getElementById('reminderRepeat').value;
+            let repeatValue = '';
+            if (repeat === 'hourly') {
+                repeatValue = reminderCustomHours.value ? `Every ${reminderCustomHours.value} hours` : '';
+            } else if (repeat === 'custom') {
+                repeatValue = reminderCustomText.value;
+            } else if (repeat) {
+                repeatValue = repeat.charAt(0).toUpperCase() + repeat.slice(1);
+            }
+            const status = document.getElementById('taskStatus').value;
+            const labels = document.getElementById('taskLabels').value.split(',').map(l => l.trim()).filter(l => l);
+            if (editIndex !== null) {
+                // Update existing task
+                tasks[editIndex] = {
+                    name, priority, deadline, reminder, repeat: repeatValue, status, labels,
+                    subtasks: subtasks.map(st => ({ ...st }))
+                };
+                editIndex = null;
+            } else {
+                // Add new task
+                tasks.push({
+                    name, priority, deadline, reminder, repeat: repeatValue, status, labels,
+                    subtasks: subtasks.map(st => ({ ...st }))
+                });
+            }
+            // Reset form
+            this.reset();
+            reminderRepeat.value = '';
+            reminderCustomHours.value = '';
+            reminderCustomText.value = '';
+            reminderCustomHours.style.display = 'none';
+            reminderCustomText.style.display = 'none';
+            subtasks = [];
+            renderSubtasks();
+            renderTasks();
+            // Change button text back to Add Task
+            this.querySelector('button[type="submit"]').textContent = "Add Task";
+        };
+
+        // --- Edit Task ---
+        function editTask(idx) {
+            const task = tasks[idx];
+            document.getElementById('taskName').value = task.name;
+            document.getElementById('taskPriority').value = task.priority;
+            document.getElementById('taskDeadline').value = task.deadline;
+            document.getElementById('taskReminder').value = task.reminder;
+            // Set repeat fields
+            let repeatType = '';
+            if (task.repeat) {
+                if (task.repeat.toLowerCase().startsWith('every') && task.repeat.toLowerCase().includes('hour')) {
+                    repeatType = 'hourly';
+                    reminderCustomHours.value = task.repeat.replace(/[^0-9]/g, '');
+                } else if (task.repeat.toLowerCase() === 'daily') {
+                    repeatType = 'daily';
+                } else if (task.repeat.toLowerCase() === 'weekly') {
+                    repeatType = 'weekly';
+                } else if (task.repeat) {
+                    repeatType = 'custom';
+                    reminderCustomText.value = task.repeat;
+                }
+            }
+            reminderRepeat.value = repeatType;
+            reminderCustomHours.style.display = repeatType === 'hourly' ? '' : 'none';
+            reminderCustomText.style.display = repeatType === 'custom' ? '' : 'none';
+
+            document.getElementById('taskStatus').value = task.status;
+            document.getElementById('taskLabels').value = task.labels.join(', ');
+            subtasks = task.subtasks.map(st => ({ ...st }));
+            renderSubtasks();
+            editIndex = idx;
+            document.getElementById('addTaskForm').querySelector('button[type="submit"]').textContent = "Update Task";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- Delete Task ---
+        function deleteTask(idx) {
+            // Remove the task
+            tasks.splice(idx, 1);
+            // Clear form fields related to category, subtasks, and reminder
+            document.getElementById('taskLabels').value = '';
+            subtasks = [];
+            renderSubtasks();
+            document.getElementById('taskReminder').value = '';
+            reminderRepeat.value = '';
+            reminderCustomHours.value = '';
+            reminderCustomText.value = '';
+            reminderCustomHours.style.display = 'none';
+            reminderCustomText.style.display = 'none';
+            renderTasks();
+        }
+
+        // --- Render Tasks ---
+        function renderTasks() {
+            const container = document.getElementById('tasksContainer');
+            container.innerHTML = '';
+            if (tasks.length === 0) {
+                container.innerHTML = '<p>No tasks yet.</p>';
+                return;
+            }
+            tasks.forEach((task, idx) => {
+                const div = document.createElement('div');
+                div.className = 'task';
+                div.innerHTML = `
+                    <strong>${task.name}</strong>
+                    <span class="priority-${task.priority.toLowerCase()}">[${task.priority}]</span>
+                    <span class="status-${task.status.replace(' ', '').toLowerCase()}">[${task.status}]</span>
+                    <br>
+                    ${task.deadline ? `<b>Deadline:</b> ${task.deadline}` : ''}
+                    ${task.reminder ? `<br><b>Reminder:</b> ${task.reminder.replace('T', ' ')}` : ''}
+                    ${task.repeat ? `<br><b>Repeat:</b> ${task.repeat}` : ''}
+                    <div class="labels">
+                        ${task.labels.map(l => `<span>${l}</span>`).join('')}
+                    </div>
+                    ${task.subtasks.length > 0 ? `
+                        <div style="margin-top:6px;">
+                            <b>Subtasks:</b>
+                            <ul style="margin:4px 0 0 18px;">
+                                ${task.subtasks.map(st => `<li>${st.name}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                    <div style="margin-top:10px;">
+                        <button onclick="editTask(${idx})" style="background:#5e60ce;color:#fff;border:none;border-radius:6px;padding:6px 16px;cursor:pointer;margin-right:8px;">Edit</button>
+                        <button onclick="deleteTask(${idx})" style="background:#d32f2f;color:#fff;border:none;border-radius:6px;padding:6px 16px;cursor:pointer;">Delete</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // --- Initial Render ---
+        renderSubtasks();
+        renderTasks();
+    </script>
+</body>
+</html>
